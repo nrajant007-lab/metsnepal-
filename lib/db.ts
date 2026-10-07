@@ -4,6 +4,12 @@ import { getChatGPTUser } from '@/app/chatgpt-auth';
 import { caireDocumentProducts } from './caire-document-products';
 import { clinicalProducts } from './clinical-products';
 import { oxygenAccessoryProducts, sleepAccessoryProducts } from './oxygen-accessories';
+export function bundledCatalogOnly() { return process.env.VERCEL === '1' && !(env as unknown as {DB?: D1Database}).DB; }
+function bundledProducts() {
+    const records = new Map<string, Product>();
+    for (const product of [...referenceProducts, ...airSepDocumentProducts, ...caireDocumentProducts, ...clinicalProducts, ...oxygenAccessoryProducts, ...sleepAccessoryProducts]) records.set(product.id, product);
+    return [...records.values()].filter(p => p.published);
+}
 export async function previewCatalog() { return (env as unknown as Record<string, string>).CATALOG_PREVIEW === 'true' && !!await getChatGPTUser(); }
 export function database() { const db = (env as unknown as {
     DB?: D1Database;
@@ -108,20 +114,20 @@ export async function seed() {
     statements.push(db.prepare('INSERT OR IGNORE INTO content (key,value) VALUES (?,?)').bind('_catalog_seeded', 'true'));
     await db.batch(statements);
 }
-export async function getProducts(all = false): Promise<Product[]> { await seed(); const preview = await previewCatalog(); const rows = await database().prepare(all || preview ? 'SELECT data,published FROM products' : 'SELECT data,published FROM products WHERE published = 1').all<{
+export async function getProducts(all = false): Promise<Product[]> { if (bundledCatalogOnly()) return bundledProducts(); await seed(); const preview = await previewCatalog(); const rows = await database().prepare(all || preview ? 'SELECT data,published FROM products' : 'SELECT data,published FROM products WHERE published = 1').all<{
     data: string;
     published: number;
 }>(); return rows.results.map(r => ({ ...JSON.parse(r.data), published: !!r.published })); }
-export async function getContent(): Promise<Record<string, string>> { await seed(); const rows = await database().prepare('SELECT key,value FROM content').all<{
+export async function getContent(): Promise<Record<string, string>> { if (bundledCatalogOnly()) return {...legalDefaults, heroImage: '/images/hero-airsep-room.png'}; await seed(); const rows = await database().prepare('SELECT key,value FROM content').all<{
     key: string;
     value: string;
 }>(); return Object.fromEntries(rows.results.map(r => [r.key, r.value])); }
-export async function getCategories() { await seed(); const rows = await database().prepare('SELECT id,slug,data FROM categories').all<{
+export async function getCategories() { if (bundledCatalogOnly()) return categories.map(c => ({...c, id:c.slug})); await seed(); const rows = await database().prepare('SELECT id,slug,data FROM categories').all<{
     id:string;
     slug:string;
     data: string;
 }>(); return rows.results.map(r => ({...JSON.parse(r.data),id:r.id,slug:r.slug})); }
-export async function getBrands() { await seed(); const rows = await database().prepare('SELECT id,slug,data FROM brands').all<{
+export async function getBrands() { if (bundledCatalogOnly()) return [...new Set(bundledProducts().map(p => p.brand))].map(name => ({id:name.toLowerCase().replaceAll(' ', '-'), slug:name.toLowerCase().replaceAll(' ', '-'), name, description:'', logo:'', published:true})); await seed(); const rows = await database().prepare('SELECT id,slug,data FROM brands').all<{
     id: string;
     slug: string;
     data: string;

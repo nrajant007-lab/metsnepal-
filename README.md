@@ -1,5 +1,11 @@
 # Multi Equipment Trade and Services
 
+## Vercel deployment
+
+Vercel builds use Next.js with webpack and emit `.next`; the Vercel project root is this repository root. `VERCEL=1` selects this path automatically. The bundled catalog and company defaults support storefront browsing without a Worker database binding. Only published source records are shown. Database-backed carts, submissions, reviews and administration require a persistent database integration; they do not fake successful saves. Sites authentication headers are ignored on Vercel because Vercel does not authenticate them. Cloudflare/Sites builds retain their original runtime and now include the previously missing `build/` integration files.
+
+Local Vercel verification in PowerShell: `$env:VERCEL='1'; npm run build`, then `node node_modules/next/dist/bin/next start` with that environment retained.
+
 Medical equipment storefront for Multi Equipment Trade and Services Pvt. Ltd., Chakupat-10, Lalitpur, Nepal.
 
 ## What is implemented

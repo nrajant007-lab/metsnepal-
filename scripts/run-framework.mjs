@@ -4,6 +4,11 @@ import { readExecutionProfile } from "./execution-profile.mjs";
 
 const [command, ...args] = process.argv.slice(2);
 if (!["dev", "build"].includes(command)) throw new Error("Expected dev or build.");
+if (process.env.VERCEL === "1") {
+  const cli = new URL("../node_modules/next/dist/bin/next", import.meta.url);
+  process.argv = [process.execPath, fileURLToPath(cli), command, '--webpack', ...args];
+  await import(cli.href);
+} else {
 const managedLinux = readExecutionProfile() === "managed-linux";
 
 if (managedLinux && command === "build") {
@@ -21,3 +26,4 @@ const cli = new URL(managedLinux
 process.argv = [process.execPath, fileURLToPath(cli), command,
   ...(!managedLinux && command === "dev" ? ["--port", "5173"] : []), ...args];
 await import(cli.href);
+}

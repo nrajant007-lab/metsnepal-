@@ -3,7 +3,7 @@ import AboutPage from '@/components/about-page';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Phone, MapPin, MessageCircle, Wrench, CheckCircle2 } from 'lucide-react';
-import { getProducts, getContent, getBrands, getCategories, database, previewCatalog } from '@/lib/db';
+import { getProducts, getContent, getBrands, getCategories, database, previewCatalog, bundledCatalogOnly } from '@/lib/db';
 import { PageIntro } from '@/components/storefront';
 import CatalogBrowser from '@/components/catalog-browser';
 import RequestForm, { ContactAside } from '@/components/request-form';
@@ -44,7 +44,7 @@ export default async function Page({ params, searchParams }: {
         const products = await getProducts();
         const p = products.find(p => p.slug === path.at(-1));
         if (p) {
-            const reviews = await database().prepare('SELECT * FROM reviews WHERE product_id=? AND approved=1').bind(p.id).all();
+            const reviews = bundledCatalogOnly() ? {results: []} : await database().prepare('SELECT * FROM reviews WHERE product_id=? AND approved=1').bind(p.id).all();
             const structured = { '@context': 'https://schema.org', '@type': 'Product', name: p.name, description: p.shortDescription, image: p.images.map(i => i.startsWith('/') ? siteOrigin + i : i), ...(p.sku ? { sku: p.sku } : {}), brand: { '@type': 'Brand', name: p.brand }, ...(p.price !== null ? { offers: { '@type': 'Offer', price: p.salePrice ?? p.price, priceCurrency: 'NPR', url: siteOrigin + '/products/' + p.slug, ...p.availability === 'In stock' ? { availability: 'https://schema.org/InStock' } : p.availability === 'Out of stock' ? { availability: 'https://schema.org/OutOfStock' } : {} } } : {}) };
             return <><PageIntro title={p.name}/><div className="container content-section"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([structured,{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:siteOrigin},{'@type':'ListItem',position:2,name:'Products',item:siteOrigin+'/products'},{'@type':'ListItem',position:3,name:p.name,item:siteOrigin+'/products/'+p.slug}]}]).replace(/</g, '\\u003c') }}/><ProductDetail product={p} related={products.filter(x => x.category === p.category && x.id !== p.id).slice(0, 4)} reviews={reviews.results}/></div></>;
         }
