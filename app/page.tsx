@@ -1,0 +1,5 @@
+import { Home } from '@/components/storefront';
+import { getProducts, getContent, previewCatalog, getCategories } from '@/lib/db';
+import { company, siteOrigin } from '@/lib/catalog';
+export const dynamic = 'force-dynamic';
+export default async function Page() { const products = await getProducts(); const content = await getContent(); return <>{await previewCatalog() && <div className="notice" style={{ borderRadius: 0, textAlign: 'center' }}>Private catalogue preview · Example models are unpublished. Verify supply and product information before public launch.</div>}<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ '@context': 'https://schema.org', '@type': 'Organization', name: company.name, url: siteOrigin, telephone: company.call, address: { '@type': 'PostalAddress', streetAddress: 'Chakupat-10', addressLocality: 'Lalitpur', addressCountry: 'NP' } }).replace(/</g, '\\u003c') }}/><Home products={products.filter(p => p.featured)} content={content} categoryData={await getCategories()}/></>; }

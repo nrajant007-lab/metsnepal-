@@ -1,0 +1,2 @@
+import { company } from './catalog';
+export function companyFromContent(content: Record<string, string>) { return { ...company, name: content.companyName || company.name, address: content.address || company.address, phone: content.phone || company.phone, call: content.call || company.call, whatsapp: content.whatsapp || company.whatsapp, gpoBox: content.gpoBox || company.gpoBox, epc: content.epc || company.epc }; }

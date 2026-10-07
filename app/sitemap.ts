@@ -1,0 +1,3 @@
+import { getProducts, getCategories, getBrands } from '@/lib/db';
+import { siteOrigin, legalPages } from '@/lib/catalog';
+export default async function sitemap() { const products = (await getProducts()).filter(p => p.published); const cats = await getCategories(); const brands = (await getBrands()).filter(b => b.published); return ['', '/products', '/categories', '/brands', '/services', '/service-request', '/request-quote', '/about', '/contact', ...legalPages.map(([s]) => '/' + s), ...products.map(p => '/products/' + p.slug), ...cats.map(c => '/categories/' + c.slug), ...brands.map(b => '/brands/' + b.slug)].map(p => ({ url: siteOrigin + p, changeFrequency: 'monthly' as const, priority: p === '' ? 1 : .7 })); }
