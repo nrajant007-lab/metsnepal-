@@ -130,3 +130,5 @@ Setup verification: the labeled contact test 2706482b-af36-462d-9021-e852bbf122a
 Contact, quotation and service forms send to `metsnepal.services@gmail.com` using native FormSubmit POST, default CAPTCHA, table email formatting and the visitor email as Reply-To. Successful submissions return to `https://portfolio.metsnepal.com/thank-you`.
 
 After deployment, submit the contact form once and confirm the FormSubmit activation email in Gmail (check Spam) if requested. Submit again to verify receipt and Reply-To. Direct email submissions are not saved to the database or admin dashboard.
+
+Vercel carts persist in an HTTP-only browser cookie for 30 days (up to 20 products). Product prices and stock are read from the server catalog. Checkout sends selected products and customer details directly to FormSubmit; it does not collect payment or store an order in the database. Keep the cart until email submission completes.

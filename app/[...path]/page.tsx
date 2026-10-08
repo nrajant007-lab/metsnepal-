@@ -83,7 +83,7 @@ export default async function Page({ params, searchParams }: {
     if (slug === 'cart')
         return <><PageIntro title="Your Cart">Review your selected equipment.</PageIntro><div className="container content-section"><Cart /></div></>;
     if (slug === 'checkout')
-        return <><PageIntro title="Checkout">Submit your details. Our team will confirm the order or quotation.</PageIntro><div className="container content-section"><Checkout methods={(content.paymentMethods || '').split('\n').map(s => s.trim()).filter(Boolean)}/></div></>;
+        return <><PageIntro title="Checkout">Submit your details. Our team will confirm the order or quotation.</PageIntro><div className="container content-section"><Checkout emailCheckout={bundledCatalogOnly()} methods={(content.paymentMethods || '').split('\n').map(s => s.trim()).filter(Boolean)}/></div></>;
     if (path[0] === 'order-confirmation' && path.length === 2) {
         const id = path[1];
         const session = await sessionId();
