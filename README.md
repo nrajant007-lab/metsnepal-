@@ -2,7 +2,7 @@
 
 ## Vercel deployment
 
-Vercel builds use Next.js with webpack and emit `.next`; the Vercel project root is this repository root. `VERCEL=1` selects this path automatically. The bundled catalog and company defaults support storefront browsing without a Worker database binding. Only published source records are shown. Database-backed carts, submissions, reviews and administration require a persistent database integration; they do not fake successful saves. Sites authentication headers are ignored on Vercel because Vercel does not authenticate them. Cloudflare/Sites builds retain their original runtime and now include the previously missing `build/` integration files.
+Vercel builds use Next.js with webpack and emit `.next`; the Vercel project root is this repository root. `VERCEL=1` selects this path automatically. The bundled catalog and company defaults support storefront browsing without a Worker database binding. Only published source records are shown. Contact, quotation and service forms post directly to FormSubmit and work without a database. Database-backed carts, reviews and administration require a persistent database integration; they do not fake successful saves. Sites authentication headers are ignored on Vercel because Vercel does not authenticate them. Cloudflare/Sites builds retain their original runtime and now include the previously missing `build/` integration files.
 
 Local Vercel verification in PowerShell: `$env:VERCEL='1'; npm run build`, then `node node_modules/next/dist/bin/next start` with that environment retained.
 
@@ -124,3 +124,9 @@ Activate the inbox by opening FormSubmit's confirmation email after the first su
 The email_notifications table is initialized by seed() and also declared in db/schema.ts. Notifications include request references and validated submission fields. Customer email is used as Reply-To where present. No customer autoresponse email is promised. Keep outgoing HTTPS access to formsubmit.co available on the server.
 
 Setup verification: the labeled contact test 2706482b-af36-462d-9021-e852bbf122ae was saved and FormSubmit returned activation_required. Inbox delivery must be checked after the recipient confirms activation.
+
+## Contact email activation
+
+Contact, quotation and service forms send to `metsnepal.services@gmail.com` using native FormSubmit POST, default CAPTCHA, table email formatting and the visitor email as Reply-To. Successful submissions return to `https://portfolio.metsnepal.com/thank-you`.
+
+After deployment, submit the contact form once and confirm the FormSubmit activation email in Gmail (check Spam) if requested. Submit again to verify receipt and Reply-To. Direct email submissions are not saved to the database or admin dashboard.
